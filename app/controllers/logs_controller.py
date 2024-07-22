@@ -51,4 +51,31 @@ async def add_log(log_creation_request, db):
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+async def update_log(log_id, log_update_request, db):
+    print("update_log called!")
+    try:
+        # Retrieve the log entry from the database
+        log_entry = db.query(Logs).filter(Logs.log_id == log_id).first()
+
+        if log_entry is None:
+            raise HTTPException(status_code=404, detail="Log entry not found")
+
+        # Update the log entry fields
+        if log_update_request.date:
+            log_entry.date = datetime.strptime(log_update_request.date, '%Y-%m-%d').date()
+        if log_update_request.log_data:
+            log_entry.log_data = log_update_request.log_data
+
+        log_entry.updated_at = func.now()
+        log_entry.updated_by = "system"  # Replace with actual user info in a real application
+
+        # Commit the changes to the database
+        db.commit()
+        db.refresh(log_entry)
+
+        return JSONResponse(status_code=200, content=log_entry.to_dict)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
 
