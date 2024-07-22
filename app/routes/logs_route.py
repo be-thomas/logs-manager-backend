@@ -27,3 +27,12 @@ async def add_log(
 ):
     return await logs_controller.add_log(log_creation_request, db)
 
+
+@router.patch("/update_log/{log_id}", response_model=LogCreationResponse, status_code=status.HTTP_200_OK)
+async def update_log(
+    log_id: str,
+    log_update_request: LogCreationRequest,
+    db: Session = Depends(get_db)
+):
+    return await logs_controller.update_log(log_id, log_update_request, db)
+
